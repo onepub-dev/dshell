@@ -34,7 +34,9 @@ void evaluate(String command) {
     // and run it.
     default:
       if (which(parts[0]).found) {
-        command.run;
+        // The run command is part of DCli and does all of the
+        // plumbing for stding/stdout/stderr.
+        run(command);
       } else {
         print(red('Unknown command: ${parts[0]}'));
       }
