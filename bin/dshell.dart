@@ -3,42 +3,60 @@
 import 'dart:io';
 
 import 'package:dcli/dcli.dart';
+import 'package:dshell/src/app_with_args.dart';
+import 'package:dshell/src/pipe.dart';
 
-void main(List<String> args) {
+void main(List<String> args) async {
   // Loop, asking for user input and evaluating it
   for (;;) {
     // print a > as a prompt
     stdout.write('${green(basename(pwd))}${blue('>')}');
     final line = stdin.readLineSync() ?? '';
     if (line.isNotEmpty) {
-      evaluate(line);
+      await evaluate(line);
     }
   }
 }
 
 // Evaluate the users input
-void evaluate(String command) {
-  final parts = command.split(' ');
-  switch (parts[0]) {
+Future<void> evaluate(String command) async {
+  final apps = command.split('|');
+  if (apps.length == 1) {
+    processApp(AppWithArgs(apps[0]));
+    return;
+  }
+
+  if (apps.length == 2) {
+    final app1 = AppWithArgs(apps[0]);
+    final app2 = AppWithArgs(apps[1]);
+
+    await pipe(app1, app2);
+  } else {
+    stderr.writeln('We only support piping 2 apps');
+  }
+}
+
+void processApp(AppWithArgs appWithArgs) {
+  switch (appWithArgs.app) {
     // list files in the current directory
     case 'ls':
-      ls(parts.sublist(1));
+      ls(appWithArgs.args);
       break;
 
     // change directories
     case 'cd':
-      Directory.current = join(pwd, parts[1]);
+      Directory.current = join(pwd, appWithArgs.args[0]);
       break;
 
     // treat the first word as the name of an app
     // and run it.
     default:
-      if (which(parts[0]).found) {
+      if (which(appWithArgs.app).found) {
         // The run command is part of DCli and does all of the
         // plumbing for stding/stdout/stderr.
-        run(command);
+        run(appWithArgs.cmdLine);
       } else {
-        print(red('Unknown command: ${parts[0]}'));
+        stdout.writeln(red('Unknown command: ${appWithArgs.app}'));
       }
       break;
   }
@@ -48,16 +66,17 @@ void evaluate(String command) {
 void ls(List<String> patterns) {
   if (patterns.isEmpty) {
     find('*',
-        workingDirectory: pwd,
-        recursive: false,
-        types: [Find.file, Find.directory]).forEach((file) => print('  $file'));
+            workingDirectory: pwd,
+            recursive: false,
+            types: [Find.file, Find.directory])
+        .forEach((file) => stdout.writeln('  $file'));
   } else {
     for (final pattern in patterns) {
       find(pattern,
               workingDirectory: pwd,
               recursive: false,
               types: [Find.file, Find.directory])
-          .forEach((file) => print('  $file'));
+          .forEach((file) => stdout.writeln('  $file'));
     }
   }
 }
