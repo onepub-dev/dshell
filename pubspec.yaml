@@ -1,6 +1,7 @@
 name: dshell
 version: 0.0.1
-description: A simple command-line application created by dcli
+description: A simple Shell
+repository: https://github.com/onepub-dev/dshell
 environment: 
   sdk: '>=2.16.0 <3.0.0'
 dependencies: 
