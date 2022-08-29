@@ -1,0 +1,9 @@
+name: dshell
+version: 0.0.1
+description: A simple command-line application created by dcli
+environment: 
+  sdk: '>=2.16.0 <3.0.0'
+dependencies: 
+  dcli: 1.34.0
+dev_dependencies: 
+  lint_hard: ^1.0.0
