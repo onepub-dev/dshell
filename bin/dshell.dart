@@ -11,18 +11,18 @@ void main(List<String> args) async {
   for (;;) {
     // print a > as a prompt
     stdout.write('${green(basename(pwd))}${blue('>')}');
-    final line = stdin.readLineSync() ?? '';
-    if (line.isNotEmpty) {
-      await evaluate(line);
+    final commandLine = stdin.readLineSync() ?? '';
+    if (commandLine.isNotEmpty) {
+      await evaluate(commandLine);
     }
   }
 }
 
-// Evaluate the users input
-Future<void> evaluate(String command) async {
-  final apps = command.split('|');
+// Evaluate the user's input
+Future<void> evaluate(String commandLine) async {
+  final apps = commandLine.split('|');
   if (apps.length == 1) {
-    processApp(AppWithArgs(apps[0]));
+    runApp(AppWithArgs(apps[0]));
     return;
   }
 
@@ -30,13 +30,13 @@ Future<void> evaluate(String command) async {
     final app1 = AppWithArgs(apps[0]);
     final app2 = AppWithArgs(apps[1]);
 
-    await pipe(app1, app2);
+    await simplePipe(app1, app2);
   } else {
     stderr.writeln('We only support piping 2 apps');
   }
 }
 
-void processApp(AppWithArgs appWithArgs) {
+void runApp(AppWithArgs appWithArgs) {
   switch (appWithArgs.app) {
     // list files in the current directory
     case 'ls':

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'app_with_args.dart';
 
-Future<void> pipe(AppWithArgs app1, AppWithArgs app2) async {
+Future<void> simplePipe(AppWithArgs app1, AppWithArgs app2) async {
   final app1Process = await Process.start(app1.app, app1.args);
   final app2Process = await Process.start(app2.app, app2.args);
 
